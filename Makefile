@@ -26,6 +26,7 @@
 include ../../checks.mk
 
 # Give this service a name, version number, and pattern name
+DOCKER_HUB_ID ?= "ibmosquito"
 SERVICE_NAME:="restcam"
 SERVICE_VERSION:="1.1.0"
 PATTERN_NAME:="pattern-restcam"
@@ -51,7 +52,7 @@ DEFAULT_DEVICE_BIND:="/dev/video0"
 # fswebcam documentation to see how they are used.
 
 build: check-dockerhubid
-	docker build -t $(DOCKERHUB_ID)/$(SERVICE_NAME)_$(ARCH):$(SERVICE_VERSION) -f ./Dockerfile.$(ARCH) .
+	docker build -t $(DOCKER_HUB_ID)/$(SERVICE_NAME)_$(ARCH):$(SERVICE_VERSION) -f ./Dockerfile.$(ARCH) .
 
 run: check-dockerhubid
 	-docker network create cam-net 2>/dev/null || :
@@ -66,7 +67,7 @@ run: check-dockerhubid
            -e CAM_OUT_HEIGHT="${CAM_OUT_HEIGHT}" \
            --name ${SERVICE_NAME} \
            --network cam-net --network-alias $(SERVICE_NAME) \
-           $(DOCKERHUB_ID)/$(SERVICE_NAME)_$(ARCH):$(SERVICE_VERSION)
+           $(DOCKER_HUB_ID)/$(SERVICE_NAME)_$(ARCH):$(SERVICE_VERSION)
 
 # This target mounts this code dir in the container, useful for development.
 dev: check-dockerhubid build
@@ -82,7 +83,7 @@ dev: check-dockerhubid build
            -e CAM_OUT_HEIGHT="${CAM_OUT_HEIGHT}" \
            --name ${SERVICE_NAME} \
            --network cam-net --network-alias $(SERVICE_NAME) \
-           $(DOCKERHUB_ID)/$(SERVICE_NAME)_$(ARCH):$(SERVICE_VERSION) /bin/bash
+           $(DOCKER_HUB_ID)/$(SERVICE_NAME)_$(ARCH):$(SERVICE_VERSION) /bin/bash
 
 # =============================================================================
 # To perform a quick self-test of the "restcam" service:
@@ -120,14 +121,14 @@ stop: check-dockerhubid
 
 clean: check-dockerhubid
 	-docker rm -f ${SERVICE_NAME} 2>/dev/null || :
-	-docker rmi $(DOCKERHUB_ID)/$(SERVICE_NAME)_$(ARCH):$(SERVICE_VERSION) 2>/dev/null || :
+	-docker rmi $(DOCKER_HUB_ID)/$(SERVICE_NAME)_$(ARCH):$(SERVICE_VERSION) 2>/dev/null || :
 	-docker network rm cam-net 2>/dev/null || :
 
 publish-service:
 	@ARCH=$(ARCH) \
 	    SERVICE_NAME="$(SERVICE_NAME)" \
 	    SERVICE_VERSION="$(SERVICE_VERSION)"\
-	    SERVICE_CONTAINER="$(DOCKERHUB_ID)/$(SERVICE_NAME)_$(ARCH):$(SERVICE_VERSION)" \
+	    SERVICE_CONTAINER="$(DOCKER_HUB_ID)/$(SERVICE_NAME)_$(ARCH):$(SERVICE_VERSION)" \
 	    hzn exchange service publish -O $(CONTAINER_CREDS) -P -f service.json --public=true
 
 publish-pattern:
