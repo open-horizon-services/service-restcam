@@ -1,0 +1,51 @@
+{
+    "org": "$HZN_ORG_ID",
+    "label": "$SERVICE_NAME for $ARCH",
+    "description": "A basic REST camera service",
+    "documentation": "https://github.com/TheMosquito/achatina/blob/master/shared/restcam/Makefile",
+    "url": "$SERVICE_NAME",
+    "version": "$SERVICE_VERSION",
+    "arch": "$ARCH",
+    "sharable": "multiple",
+    "requiredServices": [],
+    "userInput": [
+        {
+            "name": "CAM_DEVICE",
+            "label": "The source or device to use",
+            "type": "string",
+            "defaultValue": "V4L2:/dev/video0"
+        },
+        {
+            "name": "CAM_DELAY_SEC",
+            "label": "The delay between the CAM_DEVICE initialization and capturing",
+            "type": "int",
+            "defaultValue": "0"
+        },
+        {
+            "name": "CAM_OUT_WIDTH",
+            "label": "Scaled width of image",
+            "type": "int",
+            "defaultValue": "640"
+        },
+        {
+            "name": "CAM_OUT_HEIGHT",
+            "label": "Scaled height of image",
+            "type": "int",
+            "defaultValue": "480"
+        }
+    ],
+    "deployment": {
+        "services": {
+            "restcam": {
+                "image": "$SERVICE_CONTAINER",
+                "ports": [
+                    {
+                        "HostPort": "8888:80/tcp",
+                        "HostIP": "127.0.0.1"
+                    }
+                ],
+                "privileged": true
+            }
+        }
+    }
+}
